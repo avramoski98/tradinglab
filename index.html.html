@@ -1,0 +1,2280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradingLab.mk Journal</title>
+<style>
+  :root {
+    --bg: #0a0d12;
+    --bg2: #0f1318;
+    --bg3: #141920;
+    --bg4: #1c2330;
+    --border: #1e2836;
+    --border2: #243040;
+    --accent: #00c896;
+    --accent2: #00a07a;
+    --accent-glow: rgba(0,200,150,0.08);
+    --red: #e05252;
+    --red-glow: rgba(224,82,82,0.08);
+    --amber: #f0a030;
+    --blue: #4090e0;
+    --purple: #9070e0;
+    --text: #c8d4e0;
+    --text2: #7890a8;
+    --text3: #4a6070;
+    --white: #e8f0f8;
+    --font: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --mono: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: -0.3px;
+  }
+  .logo-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent); }
+  .nav { display: flex; gap: 4px; }
+  .nav-btn {
+    background: none;
+    border: none;
+    color: var(--text2);
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: var(--font);
+    transition: all 0.15s;
+  }
+  .nav-btn:hover { color: var(--white); background: var(--bg4); }
+  .nav-btn.active { color: var(--accent); background: var(--accent-glow); }
+
+  /* MAIN LAYOUT */
+  .main { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+  /* TABS */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* SECTION TITLES */
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+    margin-top: 28px;
+  }
+  .section-title:first-child { margin-top: 0; }
+
+  /* CARDS */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 16px;
+  }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; }
+
+  /* FORM ELEMENTS */
+  label { font-size: 11px; color: var(--text2); font-weight: 500; display: block; margin-bottom: 5px; letter-spacing: 0.3px; }
+  
+  input[type=text], input[type=number], select, textarea {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    color: var(--white);
+    font-size: 13px;
+    padding: 8px 11px;
+    font-family: var(--font);
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,200,150,0.08);
+  }
+  select option { background: var(--bg3); }
+  textarea { resize: vertical; min-height: 72px; }
+
+  /* RADIO / CHECKBOX GROUPS */
+  .radio-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .radio-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .radio-btn:hover { border-color: var(--border2); color: var(--white); }
+  .radio-btn.selected { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+  .radio-btn.selected.red { background: var(--red-glow); border-color: var(--red); color: var(--red); }
+  .radio-btn.selected.amber { background: rgba(240,160,48,0.1); border-color: var(--amber); color: var(--amber); }
+  .radio-btn.selected.blue { background: rgba(64,144,224,0.1); border-color: var(--blue); color: var(--blue); }
+  .radio-btn.selected.purple { background: rgba(144,112,224,0.1); border-color: var(--purple); color: var(--purple); }
+
+  /* TOGGLES */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-label { font-size: 13px; color: var(--text); }
+  .toggle-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+  .toggle-wrap { display: flex; align-items: center; gap: 8px; }
+  .toggle {
+    position: relative;
+    width: 38px;
+    height: 20px;
+    background: var(--border2);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle.red-on { background: var(--red); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+  .toggle.on::after, .toggle.red-on::after { transform: translateX(18px); }
+
+  /* CHECKLIST ITEMS */
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-box {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--border2);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .check-box.checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .check-box.checked::after {
+    content: '';
+    width: 10px;
+    height: 6px;
+    border-left: 2px solid #000;
+    border-bottom: 2px solid #000;
+    transform: rotate(-45deg) translate(1px, -1px);
+    display: block;
+  }
+  .check-text { font-size: 13px; color: var(--text); line-height: 1.4; }
+  .check-text.checked-text { color: var(--text3); text-decoration: line-through; }
+  .check-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font);
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+  .btn-primary:hover { background: #00daa8; }
+  .btn-ghost {
+    background: var(--bg4);
+    color: var(--text);
+    border: 1px solid var(--border2);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: var(--red); color: #fff; }
+  .btn-danger:hover { background: #c84040; }
+
+  /* STATS ROW */
+  .stat-row { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .stat-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    flex: 1;
+    min-width: 120px;
+  }
+  .stat-label { font-size: 10px; color: var(--text3); font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
+  .stat-val { font-size: 22px; font-weight: 700; color: var(--white); font-variant-numeric: tabular-nums; }
+  .stat-val.green { color: var(--accent); }
+  .stat-val.red { color: var(--red); }
+  .stat-val.amber { color: var(--amber); }
+  .stat-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* TRADE LIST */
+  .trade-list { display: flex; flex-direction: column; gap: 10px; }
+  .trade-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .trade-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 10px 0 0 10px;
+  }
+  .trade-card.win::before { background: var(--accent); }
+  .trade-card.loss::before { background: var(--red); }
+  .trade-card.running::before { background: var(--amber); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .trade-card:hover { border-color: var(--border2); }
+  .trade-row { display: flex; align-items: center; justify-content: space-between; }
+  .trade-pair { font-size: 15px; font-weight: 700; color: var(--white); letter-spacing: 0.5px; }
+  .trade-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+  .badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .badge-green { background: rgba(0,200,150,0.12); color: var(--accent); }
+  .badge-red { background: var(--red-glow); color: var(--red); }
+  .badge-amber { background: rgba(240,160,48,0.12); color: var(--amber); }
+  .badge-blue { background: rgba(64,144,224,0.12); color: var(--blue); }
+  .badge-purple { background: rgba(144,112,224,0.12); color: var(--purple); }
+  .badge-gray { background: rgba(120,144,168,0.12); color: var(--text2); }
+  .trade-pnl { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .trade-pnl.pos { color: var(--accent); }
+  .trade-pnl.neg { color: var(--red); }
+  .trade-pnl.neu { color: var(--amber); }
+  .trade-date { font-size: 11px; color: var(--text3); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 760px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(16px);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--bg2);
+    z-index: 1;
+    border-radius: 14px 14px 0 0;
+  }
+  .modal-title { font-size: 16px; font-weight: 700; color: var(--white); }
+  .modal-close {
+    background: var(--bg4);
+    border: none;
+    color: var(--text2);
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .modal-close:hover { color: var(--white); background: var(--border2); }
+  .modal-body { padding: 20px 24px 24px; }
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    position: sticky;
+    bottom: 0;
+    background: var(--bg2);
+    border-radius: 0 0 14px 14px;
+  }
+
+  /* PROGRESS BAR */
+  .progress-bar-wrap { background: var(--bg3); border-radius: 4px; height: 6px; overflow: hidden; margin-top: 6px; }
+  .progress-bar { height: 100%; border-radius: 4px; background: var(--accent); transition: width 0.5s; }
+  .progress-bar.red { background: var(--red); }
+  .progress-bar.amber { background: var(--amber); }
+
+  /* RISK CALCULATOR */
+  .calc-result {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 12px;
+  }
+  .calc-line { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 13px; }
+  .calc-line .val { font-weight: 600; color: var(--white); font-variant-numeric: tabular-nums; font-family: var(--mono); }
+  .calc-line .val.green { color: var(--accent); }
+  .calc-line .val.red { color: var(--red); }
+  .calc-divider { border-top: 1px solid var(--border); margin: 8px 0; }
+  .calc-big { font-size: 28px; font-weight: 800; color: var(--accent); text-align: center; margin: 10px 0 4px; font-variant-numeric: tabular-nums; }
+  .calc-note { font-size: 11px; color: var(--text3); text-align: center; }
+
+  /* MILESTONE TABLE */
+  .milestone-table { width: 100%; border-collapse: collapse; }
+  .milestone-table th {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .milestone-table td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .milestone-table tr:last-child td { border-bottom: none; }
+  .milestone-table tr.current td { background: rgba(0,200,150,0.04); }
+  .milestone-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text3);
+  }
+  .milestone-num.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  /* COT indicator */
+  .cot-grid { display: flex; flex-direction: column; gap: 10px; }
+  .cot-item { }
+  .cot-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .cot-name { font-size: 12px; font-weight: 600; color: var(--text); }
+  .cot-signal { font-size: 11px; font-weight: 600; }
+  .cot-signal.bull { color: var(--accent); }
+  .cot-signal.bear { color: var(--red); }
+  .cot-signal.neutral { color: var(--text3); }
+
+  /* Notes textarea */
+  .notes-area { font-size: 13px; color: var(--white); min-height: 100px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  /* Empty state */
+  .empty-state { text-align: center; padding: 60px 24px; color: var(--text3); }
+  .empty-icon { font-size: 36px; margin-bottom: 12px; }
+  .empty-title { font-size: 15px; color: var(--text2); margin-bottom: 6px; }
+  .empty-sub { font-size: 13px; }
+
+  @media (max-width: 768px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .stat-row { gap: 8px; }
+    .stat-box { min-width: calc(50% - 4px); flex: none; }
+    .main { padding: 16px; }
+    .modal { max-height: 95vh; }
+  }
+
+  .sep { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* Alert box */
+  .alert {
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    margin-bottom: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .alert-info { background: rgba(64,144,224,0.08); border: 1px solid rgba(64,144,224,0.2); color: var(--blue); }
+  .alert-warn { background: rgba(240,160,48,0.08); border: 1px solid rgba(240,160,48,0.2); color: var(--amber); }
+  .alert-success { background: var(--accent-glow); border: 1px solid rgba(0,200,150,0.2); color: var(--accent); }
+
+  .flex-between { display: flex; align-items: center; justify-content: space-between; }
+  .gap-8 { gap: 8px; }
+  .flex { display: flex; align-items: center; }
+  .mt-12 { margin-top: 12px; }
+  .mt-16 { margin-top: 16px; }
+  .mb-12 { margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<style>
+  #password-screen {
+    position: fixed;
+    inset: 0;
+    background: #0a0d12;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  #password-screen .pw-box {
+    background: #0f1318;
+    border: 1px solid #1e2836;
+    border-radius: 14px;
+    padding: 40px 48px;
+    text-align: center;
+    width: 100%;
+    max-width: 380px;
+  }
+  #password-screen .pw-logo {
+    width: 10px;
+    height: 10px;
+    background: #00c896;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #00c896;
+    margin: 0 auto 16px;
+  }
+  #password-screen h2 {
+    color: #e8f0f8;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  #password-screen p {
+    color: #4a6070;
+    font-size: 13px;
+    margin-bottom: 24px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  #password-screen input {
+    width: 100%;
+    box-sizing: border-box;
+    background: #141920;
+    border: 1px solid #243040;
+    border-radius: 8px;
+    color: #e8f0f8;
+    font-size: 15px;
+    padding: 12px 14px;
+    outline: none;
+    text-align: center;
+    letter-spacing: 3px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    margin-bottom: 12px;
+    transition: border-color 0.15s;
+  }
+  #password-screen input:focus { border-color: #00c896; }
+  #password-screen button {
+    width: 100%;
+    background: #00c896;
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px;
+    cursor: pointer;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    transition: opacity 0.15s;
+  }
+  #password-screen button:hover { opacity: 0.85; }
+  #password-screen .pw-error {
+    color: #e05252;
+    font-size: 12px;
+    margin-top: 10px;
+    display: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+</style>
+
+<div id="password-screen">
+  <div class="pw-box">
+    <div class="pw-logo"></div>
+    <h2>TradingLab.mk</h2>
+    <p>Внеси password за да продолжиш</p>
+    <input type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPassword()">
+    <button onclick="checkPassword()">Влез →</button>
+    <div class="pw-error" id="pw-error">❌ Погрешен password. Обиди се повторно.</div>
+  </div>
+</div>
+
+<script>
+  // Password check - runs before anything else
+  const CORRECT_PASSWORD = 'tradinglab2025@@';
+  
+  function checkPassword() {
+    const input = document.getElementById('pw-input').value;
+    if (input === CORRECT_PASSWORD) {
+      sessionStorage.setItem('tl_auth', '1');
+      document.getElementById('password-screen').style.display = 'none';
+    } else {
+      document.getElementById('pw-error').style.display = 'block';
+      document.getElementById('pw-input').value = '';
+      document.getElementById('pw-input').focus();
+    }
+  }
+
+  // Auto-unlock if already authenticated this session
+  if (sessionStorage.getItem('tl_auth') === '1') {
+    document.getElementById('password-screen').style.display = 'none';
+  }
+</script>
+<div class="header">
+  <div class="logo">
+    <div class="logo-dot"></div>
+    TradingLab.mk
+  </div>
+  <div class="nav">
+    <button class="nav-btn active" onclick="switchTab('checklist')">Pre-Trade</button>
+    <button class="nav-btn" onclick="switchTab('log')">Trade Log</button>
+    <button class="nav-btn" onclick="switchTab('risk')">Risk Manager</button>
+    <button class="nav-btn" onclick="switchTab('stats')">Stats</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span id="sync-status" style="font-size:11px;color:var(--text3);">⏳ Вчитувам...</span>
+    <button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;" onclick="loadTradesFromSheets()">🔄 Refresh</button>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ===== TAB: PRE-TRADE CHECKLIST ===== -->
+<div class="tab-content active" id="tab-checklist">
+
+  <div class="flex-between mb-12">
+    <div>
+      <div style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:2px;">Pre-Trade Checklist</div>
+      <div style="font-size:12px;color:var(--text3);">Complete before every trade. No shortcuts.</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" onclick="resetChecklist()">Reset</button>
+      <button class="btn btn-primary" onclick="openNewTrade()">+ Log Trade</button>
+    </div>
+  </div>
+
+  <!-- ASSET TYPE SELECTOR -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title">Asset Class</div>
+    <div class="radio-group" id="asset-selector">
+      <div class="radio-btn selected blue" onclick="selectAsset('futures')">📊 Futures</div>
+      <div class="radio-btn" onclick="selectAsset('forex')">💱 Forex</div>
+      <div class="radio-btn" onclick="selectAsset('stocks')">📈 Stocks</div>
+    </div>
+    <div style="margin-top:12px;">
+      <label>Instrument</label>
+      <select id="instrument-select">
+        <option value="">— select pair —</option>
+      </select>
+      <input type="text" id="instrument-text" list="stocks-datalist" placeholder="Впиши ticker или име на акцијата (пр. AAPL, Tesla, Novo Nordisk...)" style="display:none;">
+      <datalist id="stocks-datalist"></datalist>
+    </div>
+    <div style="margin-top:10px;">
+      <label>Income Type</label>
+      <div class="radio-group" id="income-type">
+        <div class="radio-btn" onclick="toggleRadio(this,'income-type')">Daily</div>
+        <div class="radio-btn" onclick="toggleRadio(this,'income-type')">Weekly</div>
+        <div class="radio-btn" onclick="toggleRadio(this,'income-type')">Monthly</div>
+        <div class="radio-btn" onclick="toggleRadio(this,'income-type')">Day Trading</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="gap:16px;">
+
+    <!-- LEFT COLUMN -->
+    <div>
+
+      <!-- FUNDAMENTALS -->
+      <div id="fundamentals-futures" class="card">
+        <div class="card-title">📈 Fundamentals (Futures — COT)</div>
+        <div class="cot-grid">
+          <div class="cot-item">
+            <div class="cot-header">
+              <span class="cot-name">Commercials (Smart Money)</span>
+              <span id="com-signal" class="cot-signal neutral">—</span>
+            </div>
+            <div style="margin-top:10px;">
+              <label style="margin-bottom:6px;">Sentiment Zone</label>
+              <div class="radio-group mt-12" id="cot-com-zone" style="margin-bottom:8px;">
+                <div class="radio-btn" onclick="setCOT(this,'cot-com-zone','com-signal','bull')">Buy Zone</div>
+                <div class="radio-btn" onclick="setCOT(this,'cot-com-zone','com-signal','bear')">Sell Zone</div>
+                <div class="radio-btn" onclick="setCOT(this,'cot-com-zone','com-signal','neutral')">Neutral Zone</div>
+              </div>
+              <label style="margin-bottom:6px;">Extreme Signal</label>
+              <div class="radio-group" id="cot-commercials" style="margin-bottom:6px;">
+                <div class="radio-btn" onclick="setCOT(this,'cot-commercials','com-signal','bull')">6M Extreme Bull</div>
+                <div class="radio-btn" onclick="setCOT(this,'cot-commercials','com-signal','bull')">3Y Extreme Bull</div>
+                <div class="radio-btn" onclick="setCOT(this,'cot-commercials','com-signal','bull')">Historical Extreme Bull</div>
+                <div class="radio-btn" onclick="setCOT(this,'cot-commercials','com-signal','bear')">6M Extreme Bear</div>
+                <div class="radio-btn" onclick="setCOT(this,'cot-commercials','com-signal','bear')">3Y Extreme Bear</div>
+                <div class="radio-btn" onclick="setCOT(this,'cot-commercials','com-signal','bear')">Historical Extreme Bear</div>
+                <div class="radio-btn" onclick="setCOT(this,'cot-commercials','com-signal','neutral')">Not Extreme</div>
+              </div>
+            </div>
+          </div>
+          <hr class="divider" style="margin:8px 0;">
+          <div class="cot-item">
+            <div class="cot-header">
+              <span class="cot-name">Non-Commercials (Funds)</span>
+              <span id="ncom-signal" class="cot-signal neutral">—</span>
+            </div>
+            <div class="radio-group mt-12" id="cot-ncomm" style="margin-bottom:6px;">
+              <div class="radio-btn" onclick="setCOT(this,'cot-ncomm','ncom-signal','bull')">Divergence Bull (price ↓, funds ↑)</div>
+              <div class="radio-btn" onclick="setCOT(this,'cot-ncomm','ncom-signal','bear')">Divergence Bear (price ↑, funds ↓)</div>
+              <div class="radio-btn" onclick="setCOT(this,'cot-ncomm','ncom-signal','bull')">U-Shape Reversal → Bull</div>
+              <div class="radio-btn" onclick="setCOT(this,'cot-ncomm','ncom-signal','bear')">U-Shape Reversal → Bear</div>
+              <div class="radio-btn" onclick="setCOT(this,'cot-ncomm','ncom-signal','bull')">Follow-Through Bull</div>
+              <div class="radio-btn" onclick="setCOT(this,'cot-ncomm','ncom-signal','bear')">Follow-Through Bear</div>
+              <div class="radio-btn" onclick="setCOT(this,'cot-ncomm','ncom-signal','neutral')">Neutral / No signal</div>
+            </div>
+          </div>
+          <hr class="divider" style="margin:8px 0;">
+          <div class="cot-item">
+            <div class="cot-header">
+              <span class="cot-name">Retail (contra-Commercial)</span>
+              <span id="ret-signal" class="cot-signal neutral">—</span>
+            </div>
+            <div style="font-size:11px;color:var(--text3);margin:6px 0 8px;font-style:italic;">Retail is contra: if Commercials Buy → Retail should be at Bearish extreme</div>
+            <div class="radio-group mt-12" id="cot-retail" style="margin-bottom:6px;">
+              <div class="radio-btn" onclick="setCOT(this,'cot-retail','ret-signal','bear')">Retail Extreme Bullish → confirms Short</div>
+              <div class="radio-btn" onclick="setCOT(this,'cot-retail','ret-signal','bull')">Retail Extreme Bearish → confirms Long</div>
+              <div class="radio-btn" onclick="setCOT(this,'cot-retail','ret-signal','neutral')">Retail Neutral</div>
+            </div>
+          </div>
+          <hr class="divider" style="margin:8px 0;">
+          <div>
+            <label>Valuation (vs Gold / DXY)</label>
+            <div class="radio-group" id="fut-valuation">
+              <div class="radio-btn" onclick="toggleRadio(this,'fut-valuation')">Overvalued → Short bias</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'fut-valuation')">Undervalued → Long bias</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'fut-valuation')">Neutral</div>
+            </div>
+          </div>
+          <hr class="divider" style="margin:8px 0;">
+          <div>
+            <label>Seasonality</label>
+            <div class="radio-group" id="fut-season">
+              <div class="radio-btn" onclick="toggleRadio(this,'fut-season')">Bullish</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'fut-season')">Bearish</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'fut-season')">Neutral / Not relevant</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="fundamentals-forex" class="card" style="display:none;">
+        <div class="card-title">💱 Fundamentals (Forex)</div>
+        <div>
+          <label>Trend Follow Bias (HTF structure)</label>
+          <div class="radio-group" id="fx-trend">
+            <div class="radio-btn" onclick="toggleRadio(this,'fx-trend')">Strong Uptrend (HH + HL)</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'fx-trend')">Strong Downtrend (LL + LH)</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'fx-trend')">Correction / Pullback</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'fx-trend')">Sideways / No clear trend</div>
+          </div>
+        </div>
+        <hr class="divider" style="margin:12px 0;">
+        <div>
+          <label>Overvaluation vs USD (DXY benchmark)</label>
+          <div class="radio-group" id="fx-over">
+            <div class="radio-btn" onclick="toggleRadio(this,'fx-over')">Currency Overvalued vs USD → Short bias</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'fx-over')">Currency Undervalued vs USD → Long bias</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'fx-over')">Fair Value / Neutral</div>
+          </div>
+        </div>
+        <hr class="divider" style="margin:12px 0;">
+        <div>
+          <label>USD Strength (DXY direction)</label>
+          <div class="radio-group" id="fx-usd-val">
+            <div class="radio-btn" onclick="toggleRadio(this,'fx-usd-val')">USD Strong / Bullish</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'fx-usd-val')">USD Weak / Bearish</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'fx-usd-val')">USD Neutral</div>
+          </div>
+        </div>
+        <hr class="divider" style="margin:12px 0;">
+        <div>
+          <label>Supply & Demand confluence</label>
+          <div class="radio-group" id="fx-sd">
+            <div class="radio-btn" onclick="toggleRadio(this,'fx-sd')">At HTF Demand → Long</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'fx-sd')">At HTF Supply → Short</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'fx-sd')">Between zones / Equilibrium</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="fundamentals-stocks" class="card" style="display:none;">
+        <div class="card-title">📈 Fundamentals (Stocks / Equities)</div>
+        <div>
+          <label>Trend Follow Bias (HTF structure)</label>
+          <div class="radio-group" id="st-trend">
+            <div class="radio-btn" onclick="toggleRadio(this,'st-trend')">Strong Uptrend (HH + HL)</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'st-trend')">Strong Downtrend (LL + LH)</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'st-trend')">Correction / Pullback in uptrend</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'st-trend')">Sideways / Consolidation</div>
+          </div>
+        </div>
+        <hr class="divider" style="margin:12px 0;">
+        <div>
+          <label>Overvaluation vs Interest Rates (Treasury Bonds)</label>
+          <div class="radio-group" id="st-val">
+            <div class="radio-btn" onclick="toggleRadio(this,'st-val')">Overvalued vs rates → Caution / Short bias</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'st-val')">Undervalued vs rates → Long bias</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'st-val')">Fair Value / Neutral</div>
+          </div>
+        </div>
+        <hr class="divider" style="margin:12px 0;">
+        <div>
+          <label>Interest Rate Environment</label>
+          <div class="radio-group" id="st-rates">
+            <div class="radio-btn" onclick="toggleRadio(this,'st-rates')">Rates Falling → Supports stocks</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'st-rates')">Rates Rising → Pressure on stocks</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'st-rates')">Rates Stable / Neutral</div>
+          </div>
+        </div>
+        <hr class="divider" style="margin:12px 0;">
+        <div>
+          <label>Supply & Demand confluence</label>
+          <div class="radio-group" id="st-sd">
+            <div class="radio-btn" onclick="toggleRadio(this,'st-sd')">At HTF Demand → Long</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'st-sd')">At HTF Supply → Short</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'st-sd')">Between zones / Equilibrium</div>
+          </div>
+        </div>
+        <hr class="divider" style="margin:12px 0;">
+        <div>
+          <label>Seasonality / Cycle</label>
+          <div class="radio-group" id="st-season">
+            <div class="radio-btn" onclick="toggleRadio(this,'st-season')">Bullish seasonal (Oct-Nov indices)</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'st-season')">Bearish seasonal</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'st-season')">Earnings cycle aligned</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'st-season')">Neutral / Not relevant</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div>
+
+      <!-- HTF ANALYSIS -->
+      <div class="card">
+        <div class="card-title">📍 HTF Location & Direction</div>
+
+        <label>HTF Location (where is price?)</label>
+        <div class="radio-group" id="htf-location" style="margin-bottom:14px;">
+          <div class="radio-btn" onclick="toggleRadio(this,'htf-location')" style="background:rgba(0,200,150,0.06);border-color:rgba(0,200,150,0.3);color:var(--accent)">Very Low (Demand)</div>
+          <div class="radio-btn" onclick="toggleRadio(this,'htf-location')">Low (0-33%)</div>
+          <div class="radio-btn" onclick="toggleRadio(this,'htf-location')">Equilibrium (33-66%)</div>
+          <div class="radio-btn" onclick="toggleRadio(this,'htf-location')">High (66-100%)</div>
+          <div class="radio-btn" onclick="toggleRadio(this,'htf-location')" style="background:rgba(224,82,82,0.06);border-color:rgba(224,82,82,0.3);color:var(--red)">Very High (Supply)</div>
+        </div>
+
+        <label>HTF Direction</label>
+        <div class="radio-group" id="htf-direction" style="margin-bottom:14px;">
+          <div class="radio-btn" onclick="toggleRadio(this,'htf-direction')">Bullish (HH + HL)</div>
+          <div class="radio-btn" onclick="toggleRadio(this,'htf-direction')">Bearish (LL + LH)</div>
+          <div class="radio-btn" onclick="toggleRadio(this,'htf-direction')">Sideways</div>
+          <div class="radio-btn" onclick="toggleRadio(this,'htf-direction')">Anticipatory</div>
+        </div>
+
+        <label>Market Phase</label>
+        <div class="radio-group" id="market-phase" style="margin-bottom:14px;">
+          <div class="radio-btn" onclick="toggleRadio(this,'market-phase')">Impulse</div>
+          <div class="radio-btn" onclick="toggleRadio(this,'market-phase')">Correction</div>
+          <div class="radio-btn" onclick="toggleRadio(this,'market-phase')">Consolidation</div>
+        </div>
+
+        <label>Trade Type (Action Matrix)</label>
+        <div class="radio-group" id="trade-type">
+          <div class="radio-btn" onclick="toggleRadio(this,'trade-type')">With Trend</div>
+          <div class="radio-btn" onclick="toggleRadio(this,'trade-type')">Counter-Trend (extreme)</div>
+          <div class="radio-btn" onclick="toggleRadio(this,'trade-type')">Anticipatory</div>
+        </div>
+      </div>
+
+      <!-- LTF ZONE -->
+      <div class="card">
+        <div class="card-title">🎯 LTF Zone Quality</div>
+        <div id="ltf-checks">
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div>
+              <div class="check-text">Explosive Leg-Out</div>
+              <div class="check-sub">Strong impulsive move away from the base</div>
+            </div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div>
+              <div class="check-text">Profit Margin ≥ 1:3</div>
+              <div class="check-sub">Price moved at least 3× risk from zone</div>
+            </div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div>
+              <div class="check-text">Zone is Fresh</div>
+              <div class="check-sub">Not previously tested (25% rule)</div>
+            </div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div>
+              <div class="check-text">Base Structure 1-6 candles</div>
+              <div class="check-sub">Tight consolidation, indecisive candles</div>
+            </div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div>
+              <div class="check-text">Clean Arrival (Counter-trend only)</div>
+              <div class="check-sub">No opposing zones formed on the way in</div>
+            </div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div>
+              <div class="check-text">LOL / Big Brother Coverage</div>
+              <div class="check-sub">LTF zone within HTF supply/demand zone</div>
+            </div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div>
+              <div class="check-text">Action Matrix Aligned</div>
+              <div class="check-sub">Location + Direction confirm the action</div>
+            </div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div>
+              <div class="check-text">Risk:Reward ≥ 1:2</div>
+              <div class="check-sub">Minimum 1:2 before entry — hard rule</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="zone-score-bar" style="margin-top:16px;">
+          <div class="flex-between" style="margin-bottom:4px;">
+            <span style="font-size:11px;color:var(--text3);">Zone Quality Score</span>
+            <span id="zone-score-label" style="font-size:13px;font-weight:700;color:var(--text2);">0 / 8</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div id="zone-score-bar-fill" class="progress-bar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- NOTES BEFORE TRADE -->
+  <div class="card">
+    <div class="card-title">📝 Pre-Trade Notes & Plan</div>
+    <div class="grid-2">
+      <div>
+        <label>Setup reasoning / thesis</label>
+        <textarea class="notes-area" id="pre-thesis" placeholder="Why this trade? What's the story? COT + Location + Zone alignment..."></textarea>
+      </div>
+      <div>
+        <label>Key levels & invalidation</label>
+        <textarea class="notes-area" id="pre-levels" placeholder="Supply level: ___ | Demand level: ___ | SL: ___ | TP1: ___ | TP2: ___&#10;Invalidation: price closes above/below ___"></textarea>
+      </div>
+    </div>
+    <div style="margin-top:12px;">
+      <label>Emotional state / mindset check</label>
+      <div class="radio-group" id="mindset">
+        <div class="radio-btn" onclick="toggleRadio(this,'mindset')">🟢 Calm & focused</div>
+        <div class="radio-btn" onclick="toggleRadio(this,'mindset')">🟡 Slightly distracted</div>
+        <div class="radio-btn" onclick="toggleRadio(this,'mindset')">🔴 FOMO / Revenge / Tired — WAIT</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== TAB: TRADE LOG ===== -->
+<div class="tab-content" id="tab-log">
+
+  <div class="flex-between mb-12">
+    <div>
+      <div style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:2px;">Trade Log</div>
+      <div style="font-size:12px;color:var(--text3);">Track every execution. Running + closed trades.</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div class="radio-group" id="log-filter">
+        <div class="radio-btn selected blue" onclick="filterTrades('all',this)">All</div>
+        <div class="radio-btn" onclick="filterTrades('running',this)">🟡 Running</div>
+        <div class="radio-btn" onclick="filterTrades('futures',this)">Futures</div>
+        <div class="radio-btn" onclick="filterTrades('forex',this)">Forex</div>
+        <div class="radio-btn" onclick="filterTrades('stocks',this)">Stocks</div>
+      </div>
+      <button class="btn btn-primary" onclick="openNewTrade()">+ New Trade</button>
+    </div>
+  </div>
+
+  <div id="trade-list" class="trade-list">
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <div class="empty-title">No trades logged yet</div>
+      <div class="empty-sub">Click "+ New Trade" to log your first position</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB: RISK MANAGER ===== -->
+<div class="tab-content" id="tab-risk">
+
+  <div style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:4px;">Risk Manager</div>
+  <div style="font-size:12px;color:var(--text3);margin-bottom:20px;">Professional risk calculator — scaled for prop firms & real accounts. Path to $100k.</div>
+
+  <div class="grid-2">
+
+    <!-- RISK CALCULATOR -->
+    <div>
+      <div class="card">
+        <div class="card-title">⚡ Position Sizer</div>
+
+        <div style="margin-bottom:12px;">
+          <label>Account Type</label>
+          <div class="radio-group" id="acc-type" style="margin-bottom:10px;">
+            <div class="radio-btn selected blue" onclick="toggleRadio(this,'acc-type');calcRisk()">Real Account</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'acc-type');calcRisk()">Prop Challenge</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'acc-type');calcRisk()">Funded Account</div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="gap:10px;margin-bottom:10px;">
+          <div>
+            <label>Account Balance ($)</label>
+            <input type="number" id="acc-balance" value="1000" oninput="calcRisk()" placeholder="1000">
+          </div>
+          <div>
+            <label>Current Phase</label>
+            <select id="risk-phase" onchange="setPhaseRisk()">
+              <option value="5">Phase 1 (0-3 months): 5%</option>
+              <option value="3">Phase 2 (3-6 months): 3%</option>
+              <option value="2">Phase 3 (6-9 months): 2%</option>
+              <option value="1.5">Phase 4 (9-12 months): 1.5%</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2" style="gap:10px;margin-bottom:10px;">
+          <div>
+            <label>Risk % per trade</label>
+            <input type="number" id="risk-pct" value="5" step="0.1" oninput="calcRisk()" placeholder="2">
+          </div>
+          <div>
+            <label>Risk:Reward Ratio</label>
+            <select id="rr-ratio" onchange="calcRisk()">
+              <option value="2">1:2 (minimum)</option>
+              <option value="3">1:3</option>
+              <option value="4">1:4 (trend target)</option>
+              <option value="1">1:1 (counter-trend BE)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label>Trade direction</label>
+          <div class="radio-group" id="trade-dir">
+            <div class="radio-btn selected" onclick="toggleRadio(this,'trade-dir');calcRisk()">Long</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'trade-dir');calcRisk()">Short</div>
+          </div>
+        </div>
+
+        <div class="calc-result" id="calc-result">
+          <div class="calc-big" id="calc-risk-usd">$50.00</div>
+          <div class="calc-note">Max risk per trade</div>
+          <div class="calc-divider"></div>
+          <div class="calc-line"><span>Risk amount</span><span class="val red" id="cr-risk">-$50.00</span></div>
+          <div class="calc-line"><span>Target profit</span><span class="val green" id="cr-target">+$100.00</span></div>
+          <div class="calc-line"><span>Net expectancy/trade</span><span class="val green" id="cr-expect">+$20.00</span></div>
+          <div class="calc-divider"></div>
+          <div class="calc-line"><span>Monthly exp. (2R, 10 trades)</span><span class="val green" id="cr-monthly">+$200.00</span></div>
+          <div class="calc-line"><span>Annual projection</span><span class="val green" id="cr-annual">+$2,400</span></div>
+        </div>
+      </div>
+
+      <!-- PROP FIRM GUIDE -->
+      <div class="card">
+        <div class="card-title">🏆 Prop Firm Strategy</div>
+        <div class="alert alert-info" style="margin-bottom:14px;">
+          <span>💡</span>
+          <span>Use your $1,000 to fund prop challenges. A $25k funded account with 80% split = you keep $20k of profits. This is the fastest path to $100k.</span>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Max Daily Loss rule</div>
+            <div class="toggle-sub">Typical: 5% daily drawdown limit</div>
+          </div>
+          <div class="toggle-wrap">
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Max Total Drawdown</div>
+            <div class="toggle-sub">Typical: 10% total — stay above at all times</div>
+          </div>
+          <div class="toggle-wrap">
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Correlated trades = 1 trade</div>
+            <div class="toggle-sub">Gold + Silver = 1 idea. Split risk between them.</div>
+          </div>
+          <div class="toggle-wrap">
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">No trading during high-impact news</div>
+            <div class="toggle-sub">NFP, CPI, FOMC — close or protect positions</div>
+          </div>
+          <div class="toggle-wrap">
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MILESTONE TRACKER & ROAD TO 100K -->
+    <div>
+      <div class="card">
+        <div class="card-title">🗺️ Road to $100,000 — 12 Month Plan</div>
+        <div class="alert alert-warn" style="margin-bottom:14px;">
+          <span>⚡</span>
+          <span>With $1k real + prop firms: Phase 1 is aggressive (5% risk) because small account needs velocity. As balance grows, risk % drops to protect gains.</span>
+        </div>
+
+        <table class="milestone-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Phase</th>
+              <th>Balance Target</th>
+              <th>Risk %</th>
+              <th>Risk $</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="current">
+              <td><div class="milestone-num active">1</div></td>
+              <td style="color:var(--white);font-weight:500;">0-3 months</td>
+              <td style="color:var(--accent);">$1k → $5k</td>
+              <td><span class="badge badge-amber">5%</span></td>
+              <td style="font-family:var(--mono);font-size:12px;color:var(--text2);">$50→$250</td>
+              <td><span class="badge badge-amber">Current</span></td>
+            </tr>
+            <tr>
+              <td><div class="milestone-num">2</div></td>
+              <td style="color:var(--text);">3-6 months</td>
+              <td style="color:var(--text);">$5k → $15k</td>
+              <td><span class="badge badge-blue">3%</span></td>
+              <td style="font-family:var(--mono);font-size:12px;color:var(--text2);">$150→$450</td>
+              <td><span class="badge badge-gray">Locked</span></td>
+            </tr>
+            <tr>
+              <td><div class="milestone-num">3</div></td>
+              <td style="color:var(--text);">6-9 months</td>
+              <td style="color:var(--text);">$15k → $40k</td>
+              <td><span class="badge badge-blue">2%</span></td>
+              <td style="font-family:var(--mono);font-size:12px;color:var(--text2);">$300→$800</td>
+              <td><span class="badge badge-gray">Locked</span></td>
+            </tr>
+            <tr>
+              <td><div class="milestone-num">4</div></td>
+              <td style="color:var(--text);">9-12 months</td>
+              <td style="color:var(--text);">$40k → $100k+</td>
+              <td><span class="badge badge-green">1.5%</span></td>
+              <td style="font-family:var(--mono);font-size:12px;color:var(--text2);">$600→$1,500</td>
+              <td><span class="badge badge-gray">Locked</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="sep"></div>
+
+        <div class="card-title">Golden Risk Rules (Non-Negotiable)</div>
+        <div id="golden-rules">
+          <div class="check-item">
+            <div class="check-box"></div>
+            <div>
+              <div class="check-text">Never risk more than current phase % per trade</div>
+              <div class="check-sub">Phase 1: 5% | Phase 2: 3% | Phase 3: 2% | Phase 4: 1.5%</div>
+            </div>
+          </div>
+          <div class="check-item">
+            <div class="check-box"></div>
+            <div>
+              <div class="check-text">Correlated pairs = 1 trade idea</div>
+              <div class="check-sub">Gold + Silver: split risk 50/50. EUR/USD + GBP/USD: same rule.</div>
+            </div>
+          </div>
+          <div class="check-item">
+            <div class="check-box"></div>
+            <div>
+              <div class="check-text">After 3 consecutive losses: reduce risk by 50%</div>
+              <div class="check-sub">Losing streak protocol — size down, not up. Stay in the game.</div>
+            </div>
+          </div>
+          <div class="check-item">
+            <div class="check-box"></div>
+            <div>
+              <div class="check-text">After 5 wins in a row: do NOT increase risk impulsively</div>
+              <div class="check-sub">Wait for 10-trade review. Follow milestone system only.</div>
+            </div>
+          </div>
+          <div class="check-item">
+            <div class="check-box"></div>
+            <div>
+              <div class="check-text">Minimum 1:2 Risk:Reward before entry</div>
+              <div class="check-sub">No exceptions. Bad RR = skip. Opportunities come back.</div>
+            </div>
+          </div>
+          <div class="check-item">
+            <div class="check-box"></div>
+            <div>
+              <div class="check-text">Do not chase missed entries</div>
+              <div class="check-sub">Only enter if price action rules still apply after missing.</div>
+            </div>
+          </div>
+          <div class="check-item">
+            <div class="check-box"></div>
+            <div>
+              <div class="check-text">Trend trade SL → BE at 1:2</div>
+              <div class="check-sub">Counter-trend and anticipatory: move SL to BE at 1:1</div>
+            </div>
+          </div>
+          <div class="check-item">
+            <div class="check-box"></div>
+            <div>
+              <div class="check-text">Do not abandon strategy during losing streak</div>
+              <div class="check-sub">Edge plays out over series of trades. Consistency > outcomes.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB: STATS ===== -->
+<div class="tab-content" id="tab-stats">
+
+  <div style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:4px;">Performance Stats</div>
+  <div style="font-size:12px;color:var(--text3);margin-bottom:20px;">KPI targets: 40% win rate | 1:2 avg RR | 2Rs/month</div>
+
+  <div class="stat-row" id="stats-row">
+    <div class="stat-box"><div class="stat-label">Total Trades</div><div class="stat-val" id="st-total">0</div></div>
+    <div class="stat-box"><div class="stat-label">Win Rate</div><div class="stat-val amber" id="st-wr">—</div><div class="stat-sub">Target: 40%</div></div>
+    <div class="stat-box"><div class="stat-label">Total P&L</div><div class="stat-val" id="st-pnl">$0</div></div>
+    <div class="stat-box"><div class="stat-label">Avg RR</div><div class="stat-val" id="st-rr">—</div><div class="stat-sub">Target: 1:2</div></div>
+    <div class="stat-box"><div class="stat-label">Rs This Month</div><div class="stat-val green" id="st-r">0</div><div class="stat-sub">Target: 2R</div></div>
+    <div class="stat-box"><div class="stat-label">Current Streak</div><div class="stat-val" id="st-streak">—</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Monthly P&L (Rs)</div>
+      <div id="monthly-chart" style="height:200px;display:flex;align-items:flex-end;gap:4px;padding-top:20px;">
+        <div style="text-align:center;width:100%;color:var(--text3);font-size:12px;padding-top:60px;">No trades logged yet</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Breakdown by Market</div>
+      <div id="market-breakdown">
+        <div style="color:var(--text3);font-size:12px;">No trades logged yet</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<!-- ===== NEW TRADE MODAL ===== -->
+<div class="modal-overlay" id="trade-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Log New Trade</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="grid-2" style="gap:12px;margin-bottom:12px;">
+        <div>
+          <label>Asset Class</label>
+          <div class="radio-group" id="m-asset">
+            <div class="radio-btn selected blue" onclick="setModalAsset('futures',this)">Futures</div>
+            <div class="radio-btn" onclick="setModalAsset('forex',this)">Forex</div>
+            <div class="radio-btn" onclick="setModalAsset('stocks',this)">Stocks</div>
+          </div>
+        </div>
+        <div>
+          <label>Instrument / Pair</label>
+          <select id="m-pair">
+            <option value="">— select —</option>
+          </select>
+          <input type="text" id="m-pair-text" list="stocks-datalist" placeholder="Впиши ticker или име на акцијата..." style="display:none;">
+        </div>
+      </div>
+
+      <div class="grid-3" style="gap:12px;margin-bottom:12px;">
+        <div>
+          <label>Direction</label>
+          <div class="radio-group" id="m-dir">
+            <div class="radio-btn selected" onclick="toggleRadio(this,'m-dir')">Long</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'m-dir')">Short</div>
+          </div>
+        </div>
+        <div>
+          <label>Trade Type</label>
+          <div class="radio-group" id="m-type">
+            <div class="radio-btn" onclick="toggleRadio(this,'m-type')">With Trend</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'m-type')">Counter</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'m-type')">Anticipatory</div>
+          </div>
+        </div>
+        <div>
+          <label>Income Type</label>
+          <div class="radio-group" id="m-income">
+            <div class="radio-btn" onclick="toggleRadio(this,'m-income')">Daily</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'m-income')">Weekly</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'m-income')">Monthly</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'m-income')">Day</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-4" style="gap:10px;margin-bottom:12px;">
+        <div>
+          <label>Entry Price</label>
+          <input type="number" id="m-entry" placeholder="0.00" step="0.001">
+        </div>
+        <div>
+          <label>Stop Loss</label>
+          <input type="number" id="m-sl" placeholder="0.00" step="0.001">
+        </div>
+        <div>
+          <label>Take Profit</label>
+          <input type="number" id="m-tp" placeholder="0.00" step="0.001">
+        </div>
+        <div>
+          <label>Risk ($)</label>
+          <input type="number" id="m-risk" placeholder="50" step="1">
+        </div>
+      </div>
+
+      <div class="grid-2" style="gap:10px;margin-bottom:12px;">
+        <div>
+          <label>Status</label>
+          <div class="radio-group" id="m-status">
+            <div class="radio-btn selected amber" onclick="toggleRadio(this,'m-status')">🟡 Running</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'m-status')">✅ Win</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'m-status')">❌ Loss</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'m-status')">⚖️ Breakeven</div>
+          </div>
+        </div>
+        <div>
+          <label>P&L ($) — leave 0 if running</label>
+          <input type="number" id="m-pnl" placeholder="0" step="1">
+        </div>
+      </div>
+
+      <div class="sep"></div>
+      <div style="font-size:11px;color:var(--text3);font-weight:600;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:10px;">Fundamentals & Confluence</div>
+
+      <div id="m-futures-fund">
+        <div class="grid-2" style="gap:10px;margin-bottom:10px;">
+          <div>
+            <label>Commercials — Sentiment Zone</label>
+            <div class="radio-group" id="m-com-zone">
+              <div class="radio-btn" onclick="toggleRadio(this,'m-com-zone')">Buy Zone</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-com-zone')">Sell Zone</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-com-zone')">Neutral Zone</div>
+            </div>
+          </div>
+          <div>
+            <label>Commercials — Extreme Signal</label>
+            <div class="radio-group" id="m-com">
+              <div class="radio-btn" onclick="toggleRadio(this,'m-com')">6M Extreme Bull</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-com')">3Y Extreme Bull</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-com')">Historical Bull</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-com')">6M Extreme Bear</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-com')">3Y Extreme Bear</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-com')">Historical Bear</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-com')">Not Extreme</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid-2" style="gap:10px;margin-bottom:10px;">
+          <div>
+            <label>Non-Commercials (Funds)</label>
+            <div class="radio-group" id="m-ncom">
+              <div class="radio-btn" onclick="toggleRadio(this,'m-ncom')">Divergence Bull</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-ncom')">Divergence Bear</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-ncom')">U-Shape → Bull</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-ncom')">U-Shape → Bear</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-ncom')">Follow-Through Bull</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-ncom')">Follow-Through Bear</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-ncom')">Neutral</div>
+            </div>
+          </div>
+          <div>
+            <label>Retail (contra-Commercial)</label>
+            <div class="radio-group" id="m-retail">
+              <div class="radio-btn" onclick="toggleRadio(this,'m-retail')">Extreme Bull (→ Short)</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-retail')">Extreme Bear (→ Long)</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-retail')">Neutral</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid-2" style="gap:10px;margin-bottom:0;">
+          <div>
+            <label>Seasonality</label>
+            <div class="radio-group" id="m-season">
+              <div class="radio-btn" onclick="toggleRadio(this,'m-season')">Bullish</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-season')">Bearish</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-season')">Neutral</div>
+            </div>
+          </div>
+          <div>
+            <label>Valuation</label>
+            <div class="radio-group" id="m-futval">
+              <div class="radio-btn" onclick="toggleRadio(this,'m-futval')">Overvalued</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-futval')">Undervalued</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-futval')">Neutral</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="m-forex-fund" style="display:none;">
+        <div class="grid-2" style="gap:10px;margin-bottom:10px;">
+          <div>
+            <label>Trend Bias (HTF structure)</label>
+            <div class="radio-group" id="m-fxtrend">
+              <div class="radio-btn" onclick="toggleRadio(this,'m-fxtrend')">Uptrend</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-fxtrend')">Downtrend</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-fxtrend')">Correction</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-fxtrend')">Sideways</div>
+            </div>
+          </div>
+          <div>
+            <label>Overvaluation vs USD</label>
+            <div class="radio-group" id="m-fxover">
+              <div class="radio-btn" onclick="toggleRadio(this,'m-fxover')">Overvalued → Short</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-fxover')">Undervalued → Long</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-fxover')">Fair Value</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <label>USD Strength (DXY)</label>
+          <div class="radio-group" id="m-usdval">
+            <div class="radio-btn" onclick="toggleRadio(this,'m-usdval')">USD Strong</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'m-usdval')">USD Weak</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'m-usdval')">Neutral</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="m-stocks-fund" style="display:none;">
+        <div class="grid-2" style="gap:10px;margin-bottom:10px;">
+          <div>
+            <label>Trend Bias</label>
+            <div class="radio-group" id="m-sttrend">
+              <div class="radio-btn" onclick="toggleRadio(this,'m-sttrend')">Uptrend</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-sttrend')">Downtrend</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-sttrend')">Correction</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-sttrend')">Sideways</div>
+            </div>
+          </div>
+          <div>
+            <label>Overvaluation vs Interest Rates</label>
+            <div class="radio-group" id="m-stval">
+              <div class="radio-btn" onclick="toggleRadio(this,'m-stval')">Overvalued → Caution</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-stval')">Undervalued → Long bias</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-stval')">Fair Value</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid-2" style="gap:10px;">
+          <div>
+            <label>Interest Rate Environment</label>
+            <div class="radio-group" id="m-rates">
+              <div class="radio-btn" onclick="toggleRadio(this,'m-rates')">Rates Falling</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-rates')">Rates Rising</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-rates')">Rates Stable</div>
+            </div>
+          </div>
+          <div>
+            <label>Seasonality</label>
+            <div class="radio-group" id="m-stseason">
+              <div class="radio-btn" onclick="toggleRadio(this,'m-stseason')">Bullish (Oct-Nov)</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-stseason')">Bearish</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-stseason')">Earnings aligned</div>
+              <div class="radio-btn" onclick="toggleRadio(this,'m-stseason')">Neutral</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="gap:10px;margin-bottom:10px;">
+        <div>
+          <label>HTF Location</label>
+          <select id="m-htfloc">
+            <option>Very Low (Demand)</option>
+            <option>Low (0-33%)</option>
+            <option>Equilibrium</option>
+            <option>High (66-100%)</option>
+            <option>Very High (Supply)</option>
+          </select>
+        </div>
+        <div>
+          <label>HTF Direction</label>
+          <div class="radio-group" id="m-htfdir">
+            <div class="radio-btn" onclick="toggleRadio(this,'m-htfdir')">Bullish</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'m-htfdir')">Bearish</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'m-htfdir')">Sideways</div>
+            <div class="radio-btn" onclick="toggleRadio(this,'m-htfdir')">Anticipatory</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+      <div style="font-size:11px;color:var(--text3);font-weight:600;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:10px;">Notes</div>
+
+      <div class="grid-2" style="gap:10px;">
+        <div>
+          <label>Pre-trade notes / thesis</label>
+          <textarea id="m-prenotes" placeholder="Setup reasoning, COT alignment, zone quality..."></textarea>
+        </div>
+        <div>
+          <label>Post-trade review (fill after close)</label>
+          <textarea id="m-postnotes" placeholder="Was direction right? Management correct? Lessons learned..."></textarea>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+      <div style="font-size:11px;color:var(--text3);font-weight:600;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:10px;">📸 TradingView Screenshot</div>
+
+      <div id="screenshot-drop-zone" style="border:2px dashed var(--border2);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--bg3);position:relative;"
+        onclick="document.getElementById('screenshot-file').click()"
+        ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='var(--accent-glow)'"
+        ondragleave="this.style.borderColor='var(--border2)';this.style.background='var(--bg3)'"
+        ondrop="handleScreenshotDrop(event)">
+        <div id="screenshot-placeholder">
+          <div style="font-size:28px;margin-bottom:8px;">📊</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:4px);">Drag & drop screenshot овде</div>
+          <div style="font-size:11px;color:var(--text3);">или кликни за да избереш • или <b>Ctrl+V</b> за paste директно од TradingView</div>
+        </div>
+        <img id="screenshot-preview" src="" style="display:none;max-width:100%;max-height:300px;border-radius:6px;margin-top:8px;">
+        <button id="screenshot-remove" onclick="event.stopPropagation();removeScreenshot()" style="display:none;position:absolute;top:8px;right:8px;background:var(--red);border:none;color:#fff;border-radius:5px;padding:3px 8px;font-size:11px;cursor:pointer;">✕ Отстрани</button>
+      </div>
+      <input type="file" id="screenshot-file" accept="image/*" style="display:none;" onchange="handleScreenshotFile(this.files[0])">
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTrade()">Save Trade</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const FUTURES_PAIRS = [
+  '--- Equity Indices ---','ES (S&P 500)','NQ (Nasdaq)','YM (Dow Jones)','RTY (Russell 2000)',
+  '--- Precious Metals ---','GC (Gold)','SI (Silver)','PL (Platinum)','PA (Palladium)',
+  '--- Energy ---','CL (Crude Oil)','NG (Natural Gas)',
+  '--- Grains ---','ZC (Corn)','ZW (Wheat)','ZS (Soybeans)',
+  '--- FX Futures ---','6E (EUR/USD)','6J (JPY/USD)','6B (GBP/USD)','6A (AUD/USD)','6N (NZD/USD)','6C (CAD/USD)','6S (CHF/USD)'
+];
+const FOREX_PAIRS = [
+  '--- Majors ---','EUR/USD','GBP/USD','USD/JPY','USD/CHF','AUD/USD','NZD/USD','USD/CAD',
+  '--- Minors (EUR) ---','EUR/GBP','EUR/AUD','EUR/JPY','EUR/NZD','EUR/CAD','EUR/CHF',
+  '--- Minors (GBP) ---','GBP/JPY','GBP/AUD','GBP/NZD','GBP/CAD','GBP/CHF',
+  '--- Minors (AUD/NZD) ---','AUD/JPY','AUD/NZD','AUD/CAD','AUD/CHF','NZD/JPY','NZD/CAD','NZD/CHF',
+  '--- Minors (CAD/CHF) ---','CAD/JPY','CAD/CHF','CHF/JPY'
+];
+const STOCKS_SUGGESTIONS = [
+  'AAPL','MSFT','NVDA','TSLA','GOOGL','GOOG','META','AMZN','AMD','ORCL','NFLX','CRM','ADBE','INTC','CSCO','QCOM','AVGO','TXN','IBM','NOW',
+  'JPM','GS','BAC','MS','WFC','C','BRK.B','V','MA','AXP','BLK','SCHW',
+  'XOM','CVX','COP','SLB','OXY','PSX',
+  'UNH','JNJ','PFE','ABBV','MRK','LLY','TMO','ABT','BMY','CVS',
+  'WMT','PG','KO','PEP','COST','HD','MCD','NKE','SBUX','DIS','TGT',
+  'BA','CAT','GE','HON','UPS','LMT','RTX','DE',
+  'SPY','QQQ','DIA','IWM','VTI','VOO',
+  'ASML','SAP','NESN','MC.PA','OR.PA','SIE.DE','VOW3.DE','RHM.DE',
+  'BTC-USD','ETH-USD','SOL-USD',
+  'COIN','PLTR','SOFI','RIVN','LCID','SHOP','UBER','ABNB','SNOW','NET'
+];
+
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwZ7TmcoNZ7wNjso3QHb896mMbAvBr2gAVghuRvKC6wlRvTbnwMe1IX3zkEFZOiM8Bj1g/exec';
+let trades = [];
+let editingId = null;
+
+// ===== GOOGLE SHEETS API (JSONP — работи од file://) =====
+
+function jsonp(url, callbackName) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    window[callbackName] = function(data) {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      resolve(data);
+    };
+    script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + callbackName;
+    script.onerror = () => { delete window[callbackName]; document.body.removeChild(script); reject(new Error('JSONP failed')); };
+    document.body.appendChild(script);
+  });
+}
+
+function jsonpPost(params) {
+  return new Promise((resolve, reject) => {
+    const cbName = 'cb_' + Date.now();
+    const script = document.createElement('script');
+    const query = Object.entries({...params, callback: cbName})
+      .map(([k,v]) => encodeURIComponent(k) + '=' + encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v))
+      .join('&');
+    window[cbName] = function(data) {
+      delete window[cbName];
+      document.body.removeChild(script);
+      resolve(data);
+    };
+    script.src = SHEETS_URL + '?' + query;
+    script.onerror = () => { delete window[cbName]; document.body.removeChild(script); reject(new Error('JSONP POST failed')); };
+    document.body.appendChild(script);
+  });
+}
+
+async function loadTradesFromSheets() {
+  setSyncStatus('loading');
+  try {
+    const cbName = 'cb_load_' + Date.now();
+    const data = await jsonp(SHEETS_URL + '?action=get', cbName);
+    if (data.status === 'ok') {
+      trades = (data.trades || []).map(t => ({
+        ...t,
+        id: Number(t.id) || t.id,
+        entry: parseFloat(t.entry) || 0,
+        sl: parseFloat(t.sl) || 0,
+        tp: parseFloat(t.tp) || 0,
+        risk: parseFloat(t.risk) || 0,
+        pnl: parseFloat(t.pnl) || 0,
+        rr: parseFloat(t.rr) || 0,
+      })).reverse();
+      renderTrades();
+      renderStats();
+      setSyncStatus('ok');
+    } else {
+      setSyncStatus('error');
+    }
+  } catch(e) {
+    setSyncStatus('error');
+    console.error('Sheets load error:', e);
+  }
+}
+
+async function saveTradeToSheets(trade, isEdit) {
+  setSyncStatus('saving');
+  try {
+    await jsonpPost({ action: isEdit ? 'update' : 'save', trade: JSON.stringify(trade) });
+    setSyncStatus('ok');
+  } catch(e) {
+    setSyncStatus('error');
+  }
+}
+
+async function deleteTradeFromSheets(id) {
+  setSyncStatus('saving');
+  try {
+    await jsonpPost({ action: 'delete', id });
+    setSyncStatus('ok');
+  } catch(e) {
+    setSyncStatus('error');
+  }
+}
+
+function setSyncStatus(state) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  if (state === 'loading') { el.textContent = '⏳ Вчитувам...'; el.style.color = 'var(--amber)'; }
+  else if (state === 'saving') { el.textContent = '💾 Зачувувам...'; el.style.color = 'var(--amber)'; }
+  else if (state === 'ok') { el.textContent = '✅ Синхронизирано'; el.style.color = 'var(--accent)'; }
+  else if (state === 'error') { el.textContent = '❌ Грешка со Sheets'; el.style.color = 'var(--red)'; }
+}
+
+// ===== NAVIGATION =====
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  const btns = document.querySelectorAll('.nav-btn');
+  const tabs = ['checklist','log','risk','stats'];
+  btns[tabs.indexOf(tab)].classList.add('active');
+  if (tab === 'log') renderTrades();
+  if (tab === 'stats') renderStats();
+}
+
+// ===== ASSET SELECTOR =====
+function selectAsset(type) {
+  const btns = document.getElementById('asset-selector').children;
+  [...btns].forEach(b => { b.classList.remove('selected','blue'); });
+  event.target.classList.add('selected','blue');
+  
+  document.getElementById('fundamentals-futures').style.display = type === 'futures' ? '' : 'none';
+  document.getElementById('fundamentals-forex').style.display = type === 'forex' ? '' : 'none';
+  document.getElementById('fundamentals-stocks').style.display = type === 'stocks' ? '' : 'none';
+  
+  fillPairs(document.getElementById('instrument-select'), type);
+}
+
+function fillPairs(select, type) {
+  const isSelectId = select.id; // 'instrument-select' or 'm-pair'
+  const textId = isSelectId === 'instrument-select' ? 'instrument-text' : 'm-pair-text';
+  const textInput = document.getElementById(textId);
+
+  if (type === 'stocks') {
+    // Switch to free-text + datalist mode
+    select.style.display = 'none';
+    if (textInput) { textInput.style.display = ''; textInput.value = ''; }
+    populateStocksDatalist();
+    return;
+  }
+
+  // Futures / Forex: dropdown mode
+  select.style.display = '';
+  if (textInput) { textInput.style.display = 'none'; textInput.value = ''; }
+  const pairs = type === 'futures' ? FUTURES_PAIRS : FOREX_PAIRS;
+  select.innerHTML = '<option value="">— select pair —</option>';
+  pairs.forEach(p => {
+    const opt = document.createElement('option');
+    if (p.startsWith('---')) { opt.disabled = true; opt.style.color = '#4a6070'; }
+    opt.value = p; opt.textContent = p;
+    select.appendChild(opt);
+  });
+}
+
+function populateStocksDatalist() {
+  const dl = document.getElementById('stocks-datalist');
+  if (dl.children.length) return; // already populated
+  STOCKS_SUGGESTIONS.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s;
+    dl.appendChild(opt);
+  });
+}
+
+// Returns the active value for a pair field, whether it's the select or the text input
+function getPairValue(selectId) {
+  const select = document.getElementById(selectId);
+  if (select.style.display !== 'none') return select.value;
+  const textId = selectId === 'instrument-select' ? 'instrument-text' : 'm-pair-text';
+  return document.getElementById(textId).value.trim().toUpperCase();
+}
+
+// ===== RADIO HELPERS =====
+function toggleRadio(el, groupId) {
+  document.getElementById(groupId).querySelectorAll('.radio-btn').forEach(b => {
+    b.classList.remove('selected','red','amber','blue','purple');
+  });
+  el.classList.add('selected');
+}
+
+function setCOT(el, groupId, signalId, dir) {
+  document.getElementById(groupId).querySelectorAll('.radio-btn').forEach(b => {
+    b.classList.remove('selected','red','amber','blue');
+  });
+  el.classList.add('selected', dir === 'bull' ? 'blue' : dir === 'bear' ? 'red' : 'amber');
+  const sig = document.getElementById(signalId);
+  sig.textContent = dir === 'bull' ? '▲ Bullish' : dir === 'bear' ? '▼ Bearish' : '— Neutral';
+  sig.className = 'cot-signal ' + (dir === 'bull' ? 'bull' : dir === 'bear' ? 'bear' : 'neutral');
+}
+
+// ===== CHECKLIST =====
+function toggleCheck(item) {
+  const box = item.querySelector('.check-box');
+  const text = item.querySelector('.check-text');
+  box.classList.toggle('checked');
+  text.classList.toggle('checked-text');
+  updateZoneScore();
+}
+
+function updateZoneScore() {
+  const checks = document.querySelectorAll('#ltf-checks .check-box.checked').length;
+  const total = document.querySelectorAll('#ltf-checks .check-box').length;
+  const pct = Math.round((checks/total)*100);
+  document.getElementById('zone-score-label').textContent = checks + ' / ' + total;
+  const bar = document.getElementById('zone-score-bar-fill');
+  bar.style.width = pct + '%';
+  bar.className = 'progress-bar ' + (pct >= 75 ? '' : pct >= 50 ? 'amber' : 'red');
+}
+
+function resetChecklist() {
+  document.querySelectorAll('#ltf-checks .check-box').forEach(b => b.classList.remove('checked'));
+  document.querySelectorAll('#ltf-checks .check-text').forEach(t => t.classList.remove('checked-text'));
+  updateZoneScore();
+  document.getElementById('pre-thesis').value = '';
+  document.getElementById('pre-levels').value = '';
+}
+
+// ===== RISK CALCULATOR =====
+function setPhaseRisk() {
+  const phase = document.getElementById('risk-phase').value;
+  if (phase !== 'custom') {
+    document.getElementById('risk-pct').value = phase;
+  }
+  calcRisk();
+}
+
+function calcRisk() {
+  const bal = parseFloat(document.getElementById('acc-balance').value) || 0;
+  const pct = parseFloat(document.getElementById('risk-pct').value) || 0;
+  const rr = parseFloat(document.getElementById('rr-ratio').value) || 2;
+  const risk = bal * pct / 100;
+  const target = risk * rr;
+  // Expectancy: 40% winrate, 1:RR
+  const expect = (0.4 * target) - (0.6 * risk);
+  const monthly = expect * 10; // 10 trades/month assumption
+  const annual = monthly * 12;
+  document.getElementById('calc-risk-usd').textContent = '$' + risk.toFixed(2);
+  document.getElementById('cr-risk').textContent = '-$' + risk.toFixed(2);
+  document.getElementById('cr-target').textContent = '+$' + target.toFixed(2);
+  document.getElementById('cr-expect').textContent = (expect >= 0 ? '+' : '') + '$' + expect.toFixed(2);
+  document.getElementById('cr-expect').className = 'val ' + (expect >= 0 ? 'green' : 'red');
+  document.getElementById('cr-monthly').textContent = (monthly >= 0 ? '+' : '') + '$' + monthly.toFixed(0);
+  document.getElementById('cr-annual').textContent = (annual >= 0 ? '+' : '') + '$' + annual.toLocaleString('en-US',{maximumFractionDigits:0});
+}
+
+// ===== MODAL =====
+function openNewTrade() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'Log New Trade';
+  document.getElementById('m-prenotes').value = document.getElementById('pre-thesis')?.value || '';
+  setModalAssetDefault();
+  document.getElementById('trade-modal').classList.add('open');
+}
+
+function setModalAssetDefault() {
+  setModalAsset('futures', document.querySelector('#m-asset .radio-btn'));
+  fillPairs(document.getElementById('m-pair'), 'futures');
+}
+
+function setModalAsset(type, el) {
+  document.getElementById('m-asset').querySelectorAll('.radio-btn').forEach(b => b.classList.remove('selected','blue'));
+  if (el) { el.classList.add('selected','blue'); }
+  document.getElementById('m-futures-fund').style.display = type === 'futures' ? '' : 'none';
+  document.getElementById('m-forex-fund').style.display = type === 'forex' ? '' : 'none';
+  document.getElementById('m-stocks-fund').style.display = type === 'stocks' ? '' : 'none';
+  fillPairs(document.getElementById('m-pair'), type);
+}
+
+// ===== SCREENSHOT =====
+let currentScreenshot = null;
+
+function handleScreenshotFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = e => compressAndSetScreenshot(e.target.result);
+  reader.readAsDataURL(file);
+}
+
+function compressAndSetScreenshot(dataUrl) {
+  const img = new Image();
+  img.onload = function() {
+    const canvas = document.createElement('canvas');
+    const MAX_W = 1200;
+    const MAX_H = 700;
+    let w = img.width, h = img.height;
+    if (w > MAX_W) { h = Math.round(h * MAX_W / w); w = MAX_W; }
+    if (h > MAX_H) { w = Math.round(w * MAX_H / h); h = MAX_H; }
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    const compressed = canvas.toDataURL('image/jpeg', 0.6);
+    setScreenshot(compressed);
+  };
+  img.src = dataUrl;
+}
+
+function handleScreenshotDrop(e) {
+  e.preventDefault();
+  document.getElementById('screenshot-drop-zone').style.borderColor = 'var(--border2)';
+  document.getElementById('screenshot-drop-zone').style.background = 'var(--bg3)';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) handleScreenshotFile(file);
+}
+
+function setScreenshot(dataUrl) {
+  currentScreenshot = dataUrl;
+  document.getElementById('screenshot-preview').src = dataUrl;
+  document.getElementById('screenshot-preview').style.display = 'block';
+  document.getElementById('screenshot-placeholder').style.display = 'none';
+  document.getElementById('screenshot-remove').style.display = 'block';
+}
+
+function removeScreenshot() {
+  currentScreenshot = null;
+  document.getElementById('screenshot-preview').src = '';
+  document.getElementById('screenshot-preview').style.display = 'none';
+  document.getElementById('screenshot-placeholder').style.display = 'block';
+  document.getElementById('screenshot-remove').style.display = 'none';
+  document.getElementById('screenshot-file').value = '';
+}
+
+// Ctrl+V paste anywhere in modal
+document.addEventListener('paste', function(e) {
+  const modal = document.getElementById('trade-modal');
+  if (!modal.classList.contains('open')) return;
+  const items = e.clipboardData.items;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      const file = item.getAsFile();
+      handleScreenshotFile(file);
+      break;
+    }
+  }
+});
+
+function resetScreenshot() {
+  removeScreenshot();
+}
+
+function loadScreenshot(dataUrl) {
+  if (dataUrl) setScreenshot(dataUrl);
+  else removeScreenshot();
+}
+
+function closeModal() {
+  document.getElementById('trade-modal').classList.remove('open');
+  editingId = null;
+  resetScreenshot();
+}
+
+function getSelected(groupId) {
+  const el = document.querySelector('#' + groupId + ' .radio-btn.selected');
+  return el ? el.textContent.trim() : '';
+}
+
+function saveTrade() {
+  const asset = getSelected('m-asset') || 'Futures';
+  const assetType = asset.includes('Forex') ? 'forex' : asset.includes('Stocks') ? 'stocks' : 'futures';
+  const dir = getSelected('m-dir') || 'Long';
+  const status = getSelected('m-status') || 'Running';
+  const htfDir = getSelected('m-htfdir') || '';
+  const type = getSelected('m-type') || '';
+  const income = getSelected('m-income') || '';
+  const comZone = getSelected('m-com-zone') || '';
+  const com = getSelected('m-com') || '';
+  const ncom = getSelected('m-ncom') || '';
+  const retail = getSelected('m-retail') || '';
+  const season = getSelected('m-season') || '';
+  const futval = getSelected('m-futval') || '';
+  const usdval = getSelected('m-usdval') || '';
+  const fxtrend = getSelected('m-fxtrend') || '';
+  const fxover = getSelected('m-fxover') || '';
+  const sttrend = getSelected('m-sttrend') || '';
+  const stval = getSelected('m-stval') || '';
+  const rates = getSelected('m-rates') || '';
+  const stseason = getSelected('m-stseason') || '';
+  const htfloc = document.getElementById('m-htfloc').value;
+  const pair = getPairValue('m-pair');
+  const pnl = parseFloat(document.getElementById('m-pnl').value) || 0;
+  const risk = parseFloat(document.getElementById('m-risk').value) || 0;
+  const entry = parseFloat(document.getElementById('m-entry').value) || 0;
+  const sl = parseFloat(document.getElementById('m-sl').value) || 0;
+  const tp = parseFloat(document.getElementById('m-tp').value) || 0;
+  const prenotes = document.getElementById('m-prenotes').value;
+  const postnotes = document.getElementById('m-postnotes').value;
+
+  const tradeId = editingId || Date.now();
+
+  // Save screenshot to localStorage (too large for Sheets URL)
+  if (currentScreenshot) {
+    localStorage.setItem('screenshot_' + tradeId, currentScreenshot);
+  } else if (!editingId) {
+    localStorage.removeItem('screenshot_' + tradeId);
+  }
+
+  const trade = {
+    id: tradeId,
+    date: editingId ? trades.find(t=>t.id===editingId)?.date : new Date().toISOString(),
+    asset: assetType,
+    pair, dir, status, type, income,
+    entry, sl, tp, risk, pnl,
+    htfLoc: htfloc, htfDir,
+    comZone, com, ncom, retail, season, futval,
+    usdval, fxtrend, fxover,
+    sttrend, stval, rates, stseason,
+    prenotes, postnotes,
+    screenshot: currentScreenshot ? '✅' : '',
+    rr: risk > 0 ? (pnl / risk) : 0
+  };
+
+  if (editingId) {
+    trades = trades.map(t => t.id === editingId ? trade : t);
+  } else {
+    trades.unshift(trade);
+  }
+
+  closeModal();
+  renderTrades();
+  renderStats();
+  saveTradeToSheets(trade, !!editingId);
+}
+
+// ===== TRADE LIST =====
+let currentFilter = 'all';
+
+function filterTrades(filter, el) {
+  currentFilter = filter;
+  document.getElementById('log-filter').querySelectorAll('.radio-btn').forEach(b => b.classList.remove('selected','blue'));
+  el.classList.add('selected','blue');
+  renderTrades();
+}
+
+function renderTrades() {
+  const list = document.getElementById('trade-list');
+  let filtered = trades;
+  if (currentFilter === 'running') filtered = trades.filter(t => t.status.includes('Running'));
+  if (currentFilter === 'futures') filtered = trades.filter(t => t.asset === 'futures');
+  if (currentFilter === 'forex') filtered = trades.filter(t => t.asset === 'forex');
+  if (currentFilter === 'stocks') filtered = trades.filter(t => t.asset === 'stocks');
+
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No trades found</div><div class="empty-sub">Try a different filter or log a new trade</div></div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(t => {
+    const isRunning = t.status.includes('Running');
+    const isWin = t.status.includes('Win');
+    const isLoss = t.status.includes('Loss');
+    const isBE = t.status.includes('Breakeven');
+    const cls = isRunning ? 'running' : isWin ? 'win' : isLoss ? 'loss' : '';
+    const pnlCls = t.pnl > 0 ? 'pos' : t.pnl < 0 ? 'neg' : 'neu';
+    const pnlStr = isRunning ? 'Running...' : (t.pnl >= 0 ? '+' : '') + '$' + t.pnl.toFixed(0);
+    const date = new Date(t.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'});
+    const statusBadge = isRunning ? 'amber' : isWin ? 'green' : isLoss ? 'red' : 'gray';
+    const assetBadge = t.asset === 'futures' ? 'blue' : t.asset === 'stocks' ? 'green' : 'purple';
+    const rrStr = t.rr ? (t.rr >= 0 ? '+' : '') + t.rr.toFixed(1) + 'R' : '';
+    
+    return `<div class="trade-card ${cls}" onclick="editTrade(${t.id})">
+      <div class="trade-row">
+        <div>
+          <div class="trade-pair">${t.pair || '—'} <span style="font-size:12px;font-weight:400;color:var(--text3);">${t.dir}</span></div>
+          <div class="trade-meta">
+            <span class="badge badge-${assetBadge}">${t.asset}</span>
+            <span class="badge badge-${statusBadge}">${isRunning ? '● Running' : t.status.replace(/[🟡✅❌⚖️]/g,'').trim()}</span>
+            ${t.type ? `<span class="badge badge-gray">${t.type}</span>` : ''}
+            ${t.income ? `<span class="badge badge-gray">${t.income}</span>` : ''}
+            ${t.com && t.asset==='futures' ? `<span class="badge badge-blue">COT: ${t.com}</span>` : ''}
+            ${t.fxtrend && t.asset==='forex' ? `<span class="badge badge-purple">${t.fxtrend}</span>` : ''}
+            ${t.sttrend && t.asset==='stocks' ? `<span class="badge badge-green">${t.sttrend}</span>` : ''}
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div class="trade-pnl ${pnlCls}">${pnlStr}</div>
+          ${rrStr && !isRunning ? `<div style="font-size:11px;color:var(--text3);margin-top:2px;">${rrStr}</div>` : ''}
+          <div class="trade-date">${date}</div>
+          <button onclick="event.stopPropagation();deleteTrade(${t.id})" style="margin-top:6px;background:var(--red-glow);border:1px solid rgba(224,82,82,0.3);color:var(--red);border-radius:5px;padding:2px 8px;font-size:11px;cursor:pointer;">🗑 Избриши</button>
+        </div>
+      </div>
+      ${t.prenotes ? `<div style="font-size:11px;color:var(--text3);margin-top:8px;border-top:1px solid var(--border);padding-top:6px;">${t.prenotes.substring(0,120)}${t.prenotes.length>120?'...':''}</div>` : ''}
+      ${(() => { const sc = localStorage.getItem('screenshot_' + t.id); return sc ? `<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;"><img src="${sc}" style="max-width:100%;max-height:180px;border-radius:6px;object-fit:cover;cursor:pointer;" onclick="event.stopPropagation();openScreenshotFull('${t.id}')" title="Клик за цел приказ"></div>` : ''; })()}
+    </div>`;
+  }).join('');
+}
+
+function deleteTrade(id) {
+  if (!confirm('Сигурен си дека сакаш да го избришеш овој trade?')) return;
+  trades = trades.filter(t => t.id !== id);
+  renderTrades();
+  renderStats();
+  deleteTradeFromSheets(id);
+}
+
+function editTrade(id) {
+  const t = trades.find(tr => tr.id === id);
+  if (!t) return;
+  editingId = id;
+  document.getElementById('modal-title').textContent = 'Edit Trade — ' + (t.pair || '');
+  
+  // Set asset
+  const assetBtns = document.getElementById('m-asset').querySelectorAll('.radio-btn');
+  assetBtns.forEach(b => b.classList.remove('selected','blue'));
+  if (t.asset === 'futures') { assetBtns[0].classList.add('selected','blue'); setModalAsset('futures', null); }
+  else if (t.asset === 'forex') { assetBtns[1].classList.add('selected','blue'); setModalAsset('forex', null); }
+  else { assetBtns[2].classList.add('selected','blue'); setModalAsset('stocks', null); }
+  
+  fillPairs(document.getElementById('m-pair'), t.asset);
+  if (t.asset === 'stocks') {
+    document.getElementById('m-pair-text').value = t.pair;
+  } else {
+    document.getElementById('m-pair').value = t.pair;
+  }
+  document.getElementById('m-entry').value = t.entry;
+  document.getElementById('m-sl').value = t.sl;
+  document.getElementById('m-tp').value = t.tp;
+  document.getElementById('m-risk').value = t.risk;
+  document.getElementById('m-pnl').value = t.pnl;
+  document.getElementById('m-prenotes').value = t.prenotes || '';
+  document.getElementById('m-postnotes').value = t.postnotes || '';
+  loadScreenshot(localStorage.getItem('screenshot_' + t.id) || null);
+  document.getElementById('m-htfloc').value = t.htfLoc || 'Equilibrium';
+  
+  document.getElementById('trade-modal').classList.add('open');
+}
+
+// ===== STATS =====
+function renderStats() {
+  const closed = trades.filter(t => !t.status.includes('Running'));
+  const wins = closed.filter(t => t.status.includes('Win'));
+  const losses = closed.filter(t => t.status.includes('Loss'));
+  const totalPnl = closed.reduce((s, t) => s + t.pnl, 0);
+  const wr = closed.length ? Math.round((wins.length/closed.length)*100) : null;
+  const avgRR = wins.length ? (wins.reduce((s,t)=>s+t.rr,0)/wins.length).toFixed(1) : null;
+
+  document.getElementById('st-total').textContent = trades.length;
+  document.getElementById('st-wr').textContent = wr !== null ? wr + '%' : '—';
+  document.getElementById('st-wr').className = 'stat-val ' + (wr === null ? 'amber' : wr >= 40 ? 'green' : 'red');
+  document.getElementById('st-pnl').textContent = (totalPnl >= 0 ? '+' : '') + '$' + totalPnl.toFixed(0);
+  document.getElementById('st-pnl').className = 'stat-val ' + (totalPnl >= 0 ? 'green' : 'red');
+  document.getElementById('st-rr').textContent = avgRR ? '1:' + avgRR : '—';
+  
+  // R count this month
+  const now = new Date();
+  const thisMonthTrades = closed.filter(t => {
+    const d = new Date(t.date);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+  const monthR = thisMonthTrades.reduce((s,t)=>s+t.rr,0);
+  document.getElementById('st-r').textContent = (monthR >= 0 ? '+' : '') + monthR.toFixed(1) + 'R';
+
+  // Streak
+  let streak = 0, streakType = '';
+  for (const t of closed) {
+    const w = t.status.includes('Win');
+    if (streak === 0) { streak = 1; streakType = w ? 'W' : 'L'; }
+    else if ((w && streakType === 'W') || (!w && streakType === 'L')) streak++;
+    else break;
+  }
+  document.getElementById('st-streak').textContent = streak ? streak + streakType : '—';
+  document.getElementById('st-streak').className = 'stat-val ' + (streakType === 'W' ? 'green' : streakType === 'L' ? 'red' : '');
+
+  // Market breakdown
+  const futures = closed.filter(t => t.asset === 'futures');
+  const forex = closed.filter(t => t.asset === 'forex');
+  const stocks = closed.filter(t => t.asset === 'stocks');
+  const futPnl = futures.reduce((s,t)=>s+t.pnl,0);
+  const fxPnl = forex.reduce((s,t)=>s+t.pnl,0);
+  const stPnl = stocks.reduce((s,t)=>s+t.pnl,0);
+
+  document.getElementById('market-breakdown').innerHTML = `
+    <div class="toggle-row">
+      <div><div class="toggle-label">Futures</div><div class="toggle-sub">${futures.length} trades</div></div>
+      <div class="trade-pnl ${futPnl>=0?'pos':'neg'}">${futPnl>=0?'+':''}$${futPnl.toFixed(0)}</div>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">Forex</div><div class="toggle-sub">${forex.length} trades</div></div>
+      <div class="trade-pnl ${fxPnl>=0?'pos':'neg'}">${fxPnl>=0?'+':''}$${fxPnl.toFixed(0)}</div>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">Stocks</div><div class="toggle-sub">${stocks.length} trades</div></div>
+      <div class="trade-pnl ${stPnl>=0?'pos':'neg'}">${stPnl>=0?'+':''}$${stPnl.toFixed(0)}</div>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">Win Rate</div><div class="toggle-sub">Target: 40%</div></div>
+      <div style="font-size:15px;font-weight:700;color:${wr===null?'var(--text3)':wr>=40?'var(--accent)':'var(--red)'};">${wr !== null ? wr + '%' : '—'}</div>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">Avg R:R</div><div class="toggle-sub">Target: 1:2</div></div>
+      <div style="font-size:15px;font-weight:700;color:${avgRR&&avgRR>=2?'var(--accent)':'var(--text2)'};">${avgRR ? '1:'+avgRR : '—'}</div>
+    </div>
+  `;
+
+  // Monthly bar chart
+  renderMonthlyChart(closed);
+}
+
+function renderMonthlyChart(closed) {
+  const monthly = {};
+  closed.forEach(t => {
+    const d = new Date(t.date);
+    const key = d.toLocaleString('default',{month:'short',year:'2-digit'});
+    if (!monthly[key]) monthly[key] = 0;
+    monthly[key] += t.rr;
+  });
+
+  const keys = Object.keys(monthly).slice(-6);
+  if (!keys.length) return;
+
+  const vals = keys.map(k => monthly[k]);
+  const maxV = Math.max(...vals.map(Math.abs), 1);
+  const barsHTML = keys.map((k,i) => {
+    const v = vals[i];
+    const h = Math.max(Math.abs(v) / maxV * 120, 4);
+    const color = v >= 0 ? 'var(--accent)' : 'var(--red)';
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+      <div style="font-size:10px;color:var(--text3);font-family:var(--mono);">${v>=0?'+':''}${v.toFixed(1)}R</div>
+      <div style="width:100%;background:${color};border-radius:4px 4px 0 0;height:${h}px;opacity:0.85;"></div>
+      <div style="font-size:10px;color:var(--text3);">${k}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('monthly-chart').innerHTML = `<div style="display:flex;align-items:flex-end;gap:6px;width:100%;height:180px;">${barsHTML}</div>`;
+}
+
+// ===== GOLDEN RULES CHECKLIST =====
+document.querySelectorAll('#golden-rules .check-item').forEach(item => {
+  item.addEventListener('click', function() {
+    const box = this.querySelector('.check-box');
+    box.classList.toggle('checked');
+    const text = this.querySelector('.check-text');
+    text.classList.toggle('checked-text');
+  });
+});
+
+// ===== FULLSCREEN IMAGE VIEWER =====
+function openScreenshotFull(tradeId) {
+  const sc = localStorage.getItem('screenshot_' + tradeId);
+  if (!sc) return;
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:20px;';
+  overlay.onclick = () => document.body.removeChild(overlay);
+  const img = document.createElement('img');
+  img.src = sc;
+  img.style.cssText = 'max-width:100%;max-height:100%;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,0.8);';
+  overlay.appendChild(img);
+  document.body.appendChild(overlay);
+}
+
+// ===== INIT =====
+fillPairs(document.getElementById('instrument-select'), 'futures');
+fillPairs(document.getElementById('m-pair'), 'futures');
+calcRisk();
+loadTradesFromSheets();
+</script>
+</body>
+</html>
